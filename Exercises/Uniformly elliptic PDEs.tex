@@ -1,0 +1,85 @@
+%GCE of WPI
+%by Jiamin JIAN
+
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{CJK}
+\usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{amstext}
+\usepackage{blkarray}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{listings}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\begin{document}
+
+
+\begin{center}
+\textbf{Uniformly elliptic PDEs}
+\end{center}
+
+$\textbf{Question:}$
+
+Consider the PDE
+\begin{equation}
+    \inf_{a \in (-1, 1)} \{(1 + a^2) u''(x)\} = 0
+\end{equation}
+on $x \in (-1, 1)$. Is it uniformly elliptic?
+
+\vspace{8pt}
+
+$\textbf{Definition:}$
+
+For $F: \Omega \times \mathbb{R}^{n} \times S^{n} \mapsto \mathbb{R}$, where $S^{n}$ is $n \times n$ symmetric matrices. We say $F$
+is uniformly elliptic (with the uniform ellipticity constants $ 0 < \lambda \leq \Lambda$) if
+\begin{equation}
+    \mathcal{P}^{-} (X - Y) \leq F(x, p, X) - F(x, p, Y) \leq \mathcal{P}^{+} (X - Y)
+\end{equation}
+for $x \in \Omega, p \in \mathbb{R}^{n}$ and $X, Y \in S^{n}$, where $\mathcal{P}^{+}$ and $\mathcal{P}^{-}$ are Pucci's operators which defined as follows: for $X \in S^{n}$,
+\begin{equation*}
+    \mathcal{P}^{+}(X) := \max \{- \text{trace}(AX) \,| \, \lambda I \leq A \leq \Lambda I \,\, \text{for} \,\, A \in S^{n}\},
+\end{equation*}
+\begin{equation*}
+    \mathcal{P}^{-}(X) := \min \{- \text{trace}(AX) \,| \, \lambda I \leq A \leq \Lambda I \,\, \text{for} \,\, A \in S^{n}\}.
+\end{equation*}
+
+\vspace{8pt}
+
+$\textbf{Solution:}$
+
+For the PDE (1), we have
+\begin{equation*}
+    F(x, p, X) = \inf_{a \in (-1, 1)} \{(1+a^2) X\}, 
+\end{equation*}
+then
+\begin{align*}
+    F(x, p, X) - F(x, p, Y) & = \inf_{a \in (-1, 1)} \{ (1 + a^2) (X - Y) \} \\
+    & = \sup_{a \in (-1, 1)} \{-(1 + a^2) (X - Y)\}.
+\end{align*}
+For $0 < \lambda < \Lambda$, the Pucci's operators is 
+\begin{equation*}
+    \mathcal{P}^{+}(X - Y) = \max \{- A(X- Y) \,| \, \lambda \leq A \leq \Lambda \,\, \text{for} \,\, A \in \mathbb{R}\},
+\end{equation*}
+\begin{equation*}
+    \mathcal{P}^{-}(X - Y) = \min \{- A(X - Y) \,| \, \lambda \leq A \leq \Lambda \,\, \text{for} \,\, A \in \mathbb{R}\}.
+\end{equation*}
+So, we need the condition for $\lambda \leq A \leq \Lambda$,
+\begin{equation*}
+    \mathcal{P}^{-}(X - Y) \leq \sup_{a \in (-1,1)} \{-(1 + a^2)(X - Y)\} \leq \mathcal{P}^{+}(X - Y).
+\end{equation*}
+For $\lambda \leq 1$ and $\Lambda \geq 2$, as $(1 + a^2) \in [1, 2)$, we have
+\begin{equation*}
+    \mathcal{P}^{-} (X - Y) \leq F(x, p, X) - F(x, p, Y) \leq \mathcal{P}^{+} (X - Y),
+\end{equation*}
+thus the PDE (1) is uniformly elliptic. 
+
+\end{document}

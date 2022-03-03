@@ -1,0 +1,577 @@
+\documentclass{article}
+\usepackage[pagebackref,letterpaper=true,colorlinks=true,pdfpagemode=none,urlcolor=blue,linkcolor=blue,citecolor=blue,pdfstartview=FitH]{hyperref}
+
+\usepackage{amsmath,amsfonts}
+\usepackage{graphicx}
+\usepackage{color}
+
+
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{6.0in}
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+
+
+\setlength{\parindent}{0in}
+\setlength{\parskip}{5px}
+
+%\input{macrosblog}
+
+%%%%%%%%% For wordpress conversion
+
+\def\more{}
+
+\newif\ifblog
+\newif\iftex
+\blogfalse
+\textrue
+
+
+\usepackage{ulem}
+\def\em{\it}
+\def\emph#1{\textit{#1}}
+
+\def\image#1#2#3{\begin{center}\includegraphics[#1pt]{#3}\end{center}}
+
+\let\hrefnosnap=\href
+
+\newenvironment{btabular}[1]{\begin{tabular} {#1}}{\end{tabular}}
+
+\newenvironment{red}{\color{red}}{}
+\newenvironment{green}{\color{green}}{}
+\newenvironment{blue}{\color{blue}}{}
+
+%%%%%%%%% Typesetting shortcuts
+
+\def\B{\{0,1\}}
+\def\xor{\oplus}
+
+\def\P{{\mathbb P}}
+\def\E{{\mathbb E}}
+\def\var{{\bf Var}}
+
+\def\N{{\mathbb N}}
+\def\Z{{\mathbb Z}}
+\def\R{{\mathbb R}}
+\def\C{{\mathbb C}}
+\def\Q{{\mathbb Q}}
+\def\eps{{\epsilon}}
+
+\def\cA{{\mathcal A}}
+\def\ba{{\bf a}}
+\def\bb{{\bf b}}
+\def\bz{{\bf z}}
+
+\def\true{{\tt true}}
+\def\false{{\tt false}}
+
+%%%%%%%%% Theorems and proofs
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{exercise}[theorem]{Exercise}
+\newenvironment{proof}{\noindent {\sc Proof:}}{$\Box$} %\medskip} 
+%%%%%%%%% I added
+\newtheorem{assumption}{Assumption}
+%%%%%%%%
+
+
+
+
+\title{Multi-agents Reinforcement Learning for a Type of Platoon Control Problem}
+%\author{Qingshuo Song
+%\thanks{Department of Mathematics, City University of Hong Kong, 83 Tat Chee Avenue, Kowloon Tong, Hong Kong. song.qingshuo@cityu.edu.hk.}
+%\thanks{ The research of Qingshuo Song was supported in part by the RGC of CityU 109613 and the CityU SRG 7004241. }
+%\thanks{
+%The author is also grateful to Guy Barles and Pierre-Louis Lions for their helpful and generous suggestions. }
+%}
+%\date{}                                           
+% Activate to display a given date or no date
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+
+\end{abstract}
+
+
+
+\hspace{.2in} {\bf MSC Class}: 
+
+\hspace{.2in} {\bf Key Words}: Autonomous vehicle, Platoon control, Reinforcement learning, Stackelberg game,
+
+\hspace{1.1in}  
+Q-learning, Nash equilibrium
+
+
+
+%\vspace{.1in}
+\newpage
+
+\section{Introduction}
+
+With the continuous development and expansion of the world's automobile industry, its position in the world's economic construction is becoming more and more prominent, and automobile industry has gradually became a pillar industry in major automobile producing countries.  Safety, energy saving and efficient passage are the eternal themes of automobile industry. In recent years, the continuous increase in vehicle ownership has exacerbated traffic congestion and environmental pollution, and led to an increase in the frequency of traffic accidents. The platoon control of vehicles can achieve a stable queue driving, thereby increasing the vehicle density of the road and improving the traffic efficiency. What's more, it can also enhance the safety of the transportation system and save chemical energy.
+
+The queue control of vehicles is to form adjacent vehicles in a single lane, and automatically adjust the vehicle's motion state according to the information of adjacent vehicles, so that the adjacent vehicles maintain a stable distance and a consistent driving speed. Research on vehicle platoon control began with the PATH project in California in the 1980s. This project talked about many fundamental topics in platoon control, such as the allocation of control tasks, the layout of control architecture, technologies for perception and actuation, and longitudinal/lateral control laws. After that, plenty of attractive topics in the platoon control have been discussed, such as the choice of distance between vehicles, the impact of homogeneity and heterogeneity. 
+
+On the other hand, the information flow topology has a very important influence on platoon control. In the former studies, the information flow topology used was relatively single, which focused only on a few common structures, such as predecessor-following topology, predecessor-leader following topology, bidirectional topology and so on.  Along with the development of communication technology, the communication between vehicles (Vehicle-to-Vehicle,V2V) is becoming more and more popular. A large number of different kinds of information flow topology structures can be produced in the vehicle platoon, including two-predecessor following topology and multiple-predecessor following topology. But there are some new challenges arise naturally when we consider the variety of topologies, such as time delay, packet loss and quantization error in the communications.
+
+From the view of control, the platoon can be regarded as a dynamic system composed of multiple single vehicle nodes, where the controls can be formed for the individual vehicle through the information interaction between the nodes. Therefore, the platoon of vehicles can be regarded as a special multi-agent system， which is a dynamic system formed by multiple agents with independent autonomy through the interaction of certain information topological structures. Under this perspective, a platoon can be decomposed into four interrelated sub-components: Node dynamic(ND), Information flow topology(IFT) , Formation geometry(FG) and Distributed controller(DC). The Node dynamic mainly describes the dynamic behavior of a single vehicle, including the position, velocity and acceleration of the vehicle.  Information flow topology is a graph which can model the topological relation of information transfer between individual vehicle nodes. Formation geometry gives us the desired distance between adjacent vehicle. And distributed controller mainly reflects how can each vehicle adjusts its own behavior through the obtained information.
+
+In this paper, we utilize the above framework and modify the models in [1]. As there are many uncertainties in the driving process and signal delay when receiving the information, we add the randomness to the Node dynamic. [1] mainly talks about the control of each vehicle to keep a stable distance and same speed between adjacent vehicles, which is a stability problem. We propose an optimization problem that gives a cost function for each vehicle in the platoon and try to find the Nash equilibrium. To achieve the goal, we adopt reinforcement learning approach and utilize the Stacklberg game theory to simplify the problem.
+
+ 
+\section{Problem Setup}
+
+\subsection{General $(N+1)$-players game}
+
+Consider a $(N+1)$-players game, for player $i = 0, 1, \dots, N$, the state is governed by a SDE
+\begin{equation} \label{state of N+1 player game}
+    d X_{i}(t) = b(X_{i}(t), u_{i}(t)) \, d t + \sigma \, d W_{i}(t),
+\end{equation}
+where $u_{i} (t)$ is the control of player $i$ and $W_{i}(t)$ is a standard Brownian motion. Denote $X(t) = (X_{0}(t), X_{1}(t), \dots, X_{N}(t))$,  $u(t) = (u_{0}(t), u_{1}(t), \dots, u_{N}(t))$, and for each player $i = 0, 1, \dots, N$, we set the cost function as following:
+\begin{equation} \label{cost function of of N+1 player game}
+    J_{i}(u) = \mathbb{E} \Big{[} \int_{0}^{T} l_{i}(X(t), u(t)) \, d t + g_{i}(X(T)) \Big{]}.
+\end{equation}
+The value function of each player $i = 0, 1, \dots, N$ is
+\begin{equation*} \label{value function of N+1 player game}
+    v_{i} (t,x) = \inf_{u_{i} \in \Pi} \mathbb{E} \Big{[} \int_{t}^{T} l_{i}(X(s), u(s)) \, d s + g_{i}(X(T)) \Big{]},
+\end{equation*}
+where $\Pi$ is the admissible control set.
+
+Our goal is to minimize these cost functions and obtain the Nash equilibrium $(u_{0}^{*}, u_{1}^{*}, \dots, u_{N}^{*})$, which can be achieved when 
+\begin{equation} \label{eq: Nash equilibrium of N+1 player game}
+    J_{i}(u_{i}, u_{-i}^{*}) \geq J_{i}(u_{i}^{*}, u_{-i}^{*})
+\end{equation}
+holds for all $i = 0, 1, \dots, N$. The corresponding Hamilton–Jacobi–Bellman(HJB) equation for $v_{i}(t, x)$ is
+\begin{equation} \label{HJB of N+1 player game}
+    \begin{cases}
+    \partial_{t} v_{i} + \sum_{j = 0}^{N} b(x_{j}, u_{j}^{*}) \nabla_{j} v_{i} + \frac{1}{2} (\sigma \sigma^\mathsf{T} D^{2} v_{i}) + l_{i}(x, u_{i}^{*}) = 0 \\
+    u_{i}^{*} = \underset{u \in \Pi}{\arg\min} \{b(x_{i}, u) \nabla_{i} v_{i} + l_{i}(x, u) \} \\
+    v_{i} (T, x) = g_{i} (x).
+    \end{cases}
+\end{equation}
+
+\subsection{Platoon control}
+
+We consider a platoon running on a flat road with $N + 1$ vehicles, including a leading vehicle (LV, indexed by 0) and N following vehicles (FVs, indexed from 1 to $N$). Motivated by the node dynamic model in [1], we neglects the inertial delay in powertrain dynamics and assume that the vehicle dynamics is ideal double integrators. But considering the uncertainties in the driving process and signal delay, we add the random term to the node dynamic model, for $i = 0, 1, \dots, N$,
+\begin{equation} \label{eq:node dynamic}
+   \begin{cases}
+   d p_{i}(t) = v_{i}(t) \, d t + \sigma_{1} \, d W_{i}(t)  \\
+   d v_{i}(t) = u_{i}(t) \, d t + \sigma_{2} \, d B_{i}(t)
+   \end{cases}
+\end{equation}
+where $p_{i}(t)$ and $v_{i}(t)$ denote the position and velocity of vehicle $i$, $\sigma_{1}$ and $\sigma_{2}$ are two constants, $W_{i}(t)$ and $B_{i}(t)$ are two standard Brownian motions which independent with each other. The control input $u_{i}(t)$ for this model is the acceleration of each vehicle. As we can not change the acceleration very sharply, we add a condition for the control input $-k \leq u_{i}(t) \leq k$, where $k$ is a constant. By denoting 
+\begin{equation*}
+\begin{array}{cccc}
+X_{i}(t) =
+  \left(   \begin{array}{c}
+    p_{i}(t) \\
+    v_{i}(t)
+  \end{array}   \right),
+&
+b(X_{i}(t), u_{i}(t)) =
+  \left(    \begin{array}{c}
+    v_{i}(t) \\
+    u_{i}(t)
+  \end{array}   \right),
+&
+\sigma =
+  \left(   \begin{array}{cc}
+    \sigma_{1} &  0 \\
+    0 & \sigma_{2}
+  \end{array}   \right),
+\end{array}
+&
+\widetilde{W}_{i}(t) = 
+  \left(    \begin{array}{c}
+    W_{i}(t) \\
+    B_{i}(t)
+  \end{array}   \right),
+\end{equation*}
+then the formula (\ref{eq:node dynamic}) is equivalent to
+\begin{equation*}
+    d X_{i}(t) = b(x_{i}(t), u_{i}(t)) \, d t + \sigma \, d \widetilde{W}_{i}(t),
+\end{equation*}
+which is consistent with the dynamic system (\ref{state of N+1 player game}) of general $(N+1)$-players game.
+
+The goal of the platoon control is to maintain the best distance between adjacent vehicles, keep the same speed of each following vehicle consistent with that of the forward vehicle, and make the traffic efficiency as high as possible, so for the vehicle $i = 1, 2, \dots, N$ in the platoon we can set the cost function as follows:
+\begin{equation} \label{eq: cost function2}
+    J_{i} (u_{i}) = \mathbb{E} \Big{[} \int_{0}^{T} \Big{(} u_{i}^{2}(t) + |p_{i-1}(t) - p_{i}(t) - d|^{2} + |v_{i}(t) - v_{i - 1}(t)|^{2} \Big{)} \, d t \Big{]},
+\end{equation}
+where $d$ is the desired space between node $i-1$ and node $i$. And for the leading vehicle, we consider the cost function as follows
+\begin{equation} \label{eq: cost function1}
+    J_{0} (u_{0}) = \mathbb{E} \Big{[} \int_{0}^{T}  u_{0}^{2}(t) + (v_{0}(t) - \nu(t))^{2} \, d t \Big{]},
+\end{equation}
+where $\nu(t)$ is a deterministic function of $t$.
+
+Our goal is to minimize these cost functions and obtain the Nash equilibrium $(u_{0}^{*}, u_{1}^{*}, \dots, u_{N}^{*})$, which can be achieved when 
+\begin{equation*}
+    J_{i}(u_{i}, u_{-i}^{*}) \geq J_{i}(u_{i}^{*}, u_{-i}^{*})
+\end{equation*}
+holds for all $i = 0, 1, \dots, N$. So, to arrive the Nash equilibrium, the optimal strategy sequence $(u_{0}^{*}, u_{1}^{*}, \dots, u_{N}^{*})$ should satisfy $N+1$ inequalities. 
+
+\subsubsection{Case: N = 0}
+
+First we consider the case when there is only one vehicle in the platoon system. For $i = 0$, the state of the system governed by
+\begin{equation} \label{node danamic, N = 0}
+\begin{array}{c}
+d  X_{0}(t) =
+  \left(   \begin{array}{c}
+    d  p_{0}(t) \\
+    d  v_{0}(t)
+  \end{array}   \right)  = 
+\left(    \begin{array}{c}
+    v_{0}(t) \\
+    u_{0}(t)
+  \end{array}   \right) \, d t + 
+\left(   \begin{array}{cc}
+    \sigma_{1} &  0 \\
+    0 & \sigma_{2}
+  \end{array}   \right)
+\end{array}
+\left(    \begin{array}{c}
+   d W_{0}(t) \\
+   d B_{0}(t)
+  \end{array}   \right),
+\end{equation}
+where $u_{0}(t)$ is a progressively measurable process valued in $\Pi$, which is the admissible control set. The cost function is
+\begin{equation*}
+    J_{0} (u_{0}) = \mathbb{E} \Big{[} \int_{0}^{T} u_{0}^{2}(t) + (v_{0}(t) - \nu(t))^{2} \, d t \Big{]},
+\end{equation*}
+and the object is to minimize the cost function $J_{0} (t, x, u_{0})$ over the admissible control process set. We introduce the associated value function
+\begin{equation*}
+    v(t, x) = \inf_{u_{0} \in \Pi} \mathbb{E} \Big{[} \int_{t}^{T} u_{0}^{2}(s) + (v_{0} (s) - \nu(s))^{2} \, d s \Big{]}.
+\end{equation*}
+The corresponding HJB equation for the above stochastic control problem is 
+\begin{equation} \label{HJB, N=0}
+    \begin{cases}
+   - \frac{\partial w}{\partial t} - \inf_{u_{0} \in \Pi} \Big{[} x_{0,2} \frac{\partial w}{\partial x_{0, 1}} + u_{0} \frac{\partial w}{\partial x_{0, 2}} + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} w}{\partial x_{0, 1}^{2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} w}{\partial x_{0, 2}^{2}} + u_{0}^{2} + (x_{0,2} - \nu)^{2} \Big{]}   = 0  \\
+   w(T, x) = 0.
+   \end{cases}
+\end{equation}
+Suppose the equation (\ref{HJB, N=0}) admits the solution $w \in C^{1, 2}([0, T] \times \mathbb{R}^{2})$. Under this assumption, $u_{0}^{*}(t, x) = - \frac{1}{2} \frac{\partial w}{\partial x_{0, 2}}$, and then the HJB equation (\ref{HJB, N=0}) can be simplified as
+\begin{equation*} 
+    \begin{cases}
+   \frac{\partial w}{\partial t} -  \frac{1}{4} \Big{(} \frac{\partial w}{\partial x_{0, 2}} \Big{)}^{2} + x_{0,2} \frac{\partial w}{\partial x_{0, 1}}  + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} w}{\partial x_{0, 1}^{2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} w}{\partial x_{0, 2}^{2}} + (x_{0,2} - \nu)^{2} = 0  \\
+   w(T, x) = 0.
+   \end{cases}
+\end{equation*}
+Denote $\tau = T-t$, $\nu(t) = \widetilde{\nu} (\tau)$ and $w(t, x) = \widetilde{w}(\tau, x)$, then the following PDE can be obtained
+\begin{equation*}
+    \begin{cases}
+   - \frac{\partial \widetilde{w}}{\partial \tau} -  \frac{1}{4} \Big{(} \frac{\partial \widetilde{w}}{\partial x_{0, 2}} \Big{)}^{2} + x_{0,2} \frac{\partial \widetilde{w}}{\partial x_{0, 1}}  + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} \widetilde{w}}{\partial x_{0, 1}^{2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} \widetilde{w}}{\partial x_{0, 2}^{2}} + (x_{0,2} - \widetilde{\nu})^{2} = 0  \\
+   \widetilde{w}(0, x) = 0.
+   \end{cases}
+\end{equation*}
+Suppose the solution of the above PDE is
+\begin{equation} \label{solution form}
+    \widetilde{w}(\tau, x) = \phi_{1}(\tau) x_{0, 1}^{2} + \phi_{2}(\tau) x_{0, 2}^{2} + \phi_{3}(\tau) x_{0, 1} x_{0, 2} + \phi_{4}(\tau) x_{0, 1} + \phi_{5}(\tau) x_{0, 2} + \phi_{6} (\tau),
+\end{equation}
+then we have
+\begin{equation*}
+    \begin{cases}
+   \frac{\partial \widetilde{w}}{\partial \tau} = x_{0, 1}^{2} \phi_{1}^{'} (\tau) + x_{0, 2}^{2} \phi_{2}^{'} (\tau) + x_{0, 1} x_{0, 2} \phi_{3}^{'} (\tau) + x_{0, 1} \phi_{4}^{'} (\tau) + x_{0, 2} \phi_{5}^{'} (\tau) + \phi_{6}^{'} (\tau) \\
+   \frac{\partial \widetilde{w}}{\partial x_{0, 1}} = 2 x_{0, 1} \phi_{1} (\tau) + x_{0, 2} \phi_{3}(\tau) + \phi_{4}(\tau) \\
+   \frac{\partial^{2} \widetilde{w}}{\partial x_{0, 1}^{2}} = 2 \phi_{1}(\tau) \\
+   \frac{\partial \widetilde{w}}{\partial x_{0, 2}} = 2 x_{0, 2} \phi_{2} (\tau) + x_{0, 1} \phi_{3}(\tau) + \phi_{5}(\tau) \\
+   \frac{\partial^{2} \widetilde{w}}{\partial x_{0, 2}^{2}} = 2 \phi_{2}(\tau).
+   \end{cases}
+\end{equation*}
+Plugging it back to the PDE, we can get the Ricatti system of ODEs as follows
+\begin{equation*}
+    \begin{cases}
+   \phi_{1}^{'} (\tau) + \frac{1}{4} \phi_{3}^{2}(\tau) = 0 \\
+   \phi_{2}^{'} (\tau) + \phi_{2}^{2}(\tau) - \phi_{3}(\tau) - 1 = 0 \\
+   \phi_{3}^{'} (\tau) - 2 \phi_{1}(\tau) + \phi_{2}(\tau)\phi_{3}(\tau) = 0 \\
+   \phi_{4}^{'} (\tau) + \frac{1}{2} \phi_{3} (\tau) \phi_{5}(\tau) = 0 \\
+   \phi_{5}^{'} (\tau) + \phi_{2} (\tau) \phi_{5}(\tau) - \phi_{4}(\tau) + 2 \widetilde{\nu} (\tau) = 0 \\
+   \phi_{6}^{'} (\tau) + \frac{1}{4} \phi_{5}^{2} (\tau) - \sigma_{1}^{2} \phi_{1}(\tau) - \sigma_{2}^{2} \phi_{2}(\tau) - (\widetilde{\nu}(\tau))^{2} = 0,
+   \end{cases}
+\end{equation*}
+with the initial condition
+\begin{equation*}
+    \phi_{1}(0) = \phi_{2}(0) = \phi_{3}(0) = \phi_{4}(0) = \phi_{5}(0) = \phi_{6}(0) = 0.
+\end{equation*}
+
+If we take $\nu(t)$ as a constant, the solution of the Ricatti system of ODEs is
+\begin{equation}
+    \begin{cases}
+    \phi_{1} (\tau) = \phi_{3} (\tau) = \phi_{4} (\tau) = 0 \\
+    \phi_{2} (\tau) = \frac{e^{2 \tau} - 1}{e^{2 \tau} + 1} \\
+    \phi_{5} (\tau) = - 2 \nu \frac{e^{2 \tau} - 1}{e^{2 \tau} + 1} \\
+    \phi_{6}(\tau) = \sigma_{2}^{2} \ln (e^{2 \tau} + 1) - \sigma_{2}^{2} \tau - \frac{2 \nu^2}{e^{2 \tau} + 1} + \nu^2 - \sigma_{2}^{2} \ln 2.
+    \end{cases}
+\end{equation}
+Thus the solution of the solution of HJB equation (\ref{HJB, N=0}) is
+\begin{equation}
+    w (t, x) =  \varphi(T-t) x_{0, 2}^{2} - 2 \nu \varphi(T-t)  x_{0, 2} + \\ \sigma_{2}^{2} \ln (e^{2(T - t)} + 1) - \sigma_{2}^{2} (T-t) - \frac{2 \nu^2}{e^{2 (T-t)} + 1} + \nu^2 - \sigma_{2}^{2} \ln 2,
+\end{equation}
+where
+\begin{equation*}
+    \varphi(t) = \frac{e^{2t} - 1}{e^{2t} + 1}.
+\end{equation*}
+Since the optimal control $u_{0}^{*}(t, x) = - \frac{1}{2} \frac{\partial w}{\partial x_{0, 2}}$, then we have
+\begin{equation}
+    u_{0}^{*} (t,x) = - \varphi(T - t) (x_{0,2} - \nu).
+\end{equation}
+
+
+\subsubsection{Case: $N = 1$}
+
+In this section we consider the case when $N = 1$. There are two vehicles in the system. Suppose for the leading vehicle, we got the optional control $u_{0}^{*} (t, x)$ and the state function $X_{0}^{*} (t)$, then the dynamic of this system is governed by
+\begin{equation}
+    \begin{cases}
+   d X_{0}^{*}(t) = b(X_{0}^{*}(t), u_{0}^{*}(t)) \, d t + \sigma \, d \widetilde{W}_{0}(t)  \\
+   d X_{1}(t) = b(X_{1} (t), u_{1} (t)) \, d t + \sigma \, d \widetilde{W}_{1}(t).
+   \end{cases}
+\end{equation}
+We want to minimize the cost function
+\begin{equation*}
+    J_{1} (u_{1}) = \mathbb{E} \Big{[} \int_{0}^{T} \Big{(} u_{1}^{2}(t) + |p_{0}^{*}(t) - p_{1}(t) - d|^{2} + |v_{1}(t) - v_{0}^{*}(t)|^{2} \Big{)} \, d t \Big{]},
+\end{equation*}
+and the value function is denoted by
+\begin{equation*}
+    v(t, x_{1}, x_{0}^{*}) = \inf_{u_{1} \in \Pi} \mathbb{E} \Big{[} \int_{t}^{T} \Big{(} u_{1}^{2}(s) + |p_{0}^{*}(s) - p_{1}(s) - d|^{2} + |v_{1}(s) - v_{0}^{*}(s)|^{2} \Big{)} \, d s \Big{]}.
+\end{equation*}
+The corresponding HJB equation is as following
+\begin{equation} \label{HJB, N=1}
+    \begin{cases}
+   - \frac{\partial w}{\partial t} - \inf_{u_{1} \in \Pi} \Big{[} x_{0,2}^{*} \frac{\partial w}{\partial x_{0, 1}^{*}} + u_{0}^{*} \frac{\partial w}{\partial x_{0, 2}^{*}} + x_{1,2} \frac{\partial w}{\partial x_{1, 1}} + u_{1} \frac{\partial w}{\partial x_{1, 2}} + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} w}{\partial x_{0, 1}^{* 2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} w}{\partial x_{0, 2}^{* 2}}  \\
+   \qquad + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} w}{\partial x_{1, 1}^{2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} w}{\partial x_{1, 2}^{2}} + u_{1}^{2} + (x_{0, 1}^{*} - x_{1, 1} - d)^{2} + (x_{1, 2} - x_{0, 2}^{*})^{2}  \Big{]}   = 0  \\
+   w(T, x) = 0,
+   \end{cases}
+\end{equation}
+where $w(t, x) = w(t, x_{0, 1}^{*}, x_{0, 2}^{*}, x_{1, 1}, x_{1, 2})$. Suppose the equation (\ref{HJB, N=1}) has the unique solution $w(t,x) \in C^{1,2}([0, T] \times \mathbb{R}^{4})$. Under this assumption, we have $u_{1}^{*}(t, x) = - \frac{1}{2} \frac{\partial w}{\partial x_{1, 2}}$, and then the HJB equation (\ref{HJB, N=1}) can be simplified as
+\begin{equation*}
+    \begin{cases}
+    \frac{\partial w}{\partial t} + x_{0,2}^{*} \frac{\partial w}{\partial x_{0, 1}^{*}} + u_{0}^{*} \frac{\partial w}{\partial x_{0, 2}^{*}} + x_{1,2} \frac{\partial w}{\partial x_{1, 1}} - \frac{1}{4} \Big{(}\frac{\partial w}{\partial x_{1, 2}} \Big{)}^{2} + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} w}{\partial x_{0, 1}^{* 2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} w}{\partial x_{0, 2}^{* 2}}  \\
+   \qquad + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} w}{\partial x_{1, 1}^{2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} w}{\partial x_{1, 2}^{2}} + (x_{0, 1}^{*} - x_{1, 1} - d)^{2} + (x_{1, 2} - x_{0, 2}^{*})^{2}  = 0  \\
+   w(T, x) = 0.
+   \end{cases}
+\end{equation*}
+Similarly, by denoting $\tau = T-t$ and $w(t,x) = \widetilde{w}(t, \tau)$, then the above PDE with the terminal condition can be transformed to
+\begin{equation*}
+    \begin{cases}
+    - \frac{\partial \widetilde{w}}{\partial \tau} + x_{0,2}^{*} \frac{\partial \widetilde{w}}{\partial x_{0, 1}^{*}} + u_{0}^{*} \frac{\partial \widetilde{w}}{\partial x_{0, 2}^{*}} + x_{1,2} \frac{\partial \widetilde{w}}{\partial x_{1, 1}} - \frac{1}{4} \Big{(}\frac{\partial \widetilde{w}}{\partial x_{1, 2}} \Big{)}^{2} + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} \widetilde{w}}{\partial x_{0, 1}^{* 2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} \widetilde{w}}{\partial x_{0, 2}^{* 2}}  \\
+   \qquad + \frac{1}{2} \sigma_{1}^{2} \frac{\partial^{2} \widetilde{w}}{\partial x_{1, 1}^{2}} + \frac{1}{2} \sigma_{2}^{2} \frac{\partial^{2} \widetilde{w}}{\partial x_{1, 2}^{2}} + (x_{0, 1}^{*} - x_{1, 1} - d)^{2} + (x_{1, 2} - x_{0, 2}^{*})^{2}  = 0  \\
+   \widetilde{w}(0, x) = 0.
+   \end{cases}
+\end{equation*}
+
+For the above PDE with the initial condition, we suppose the solution has the same form as (\ref{solution form}), 
+\begin{equation*}
+\begin{array}
+{ll}
+\widetilde{w}(\tau,x) =
+& \displaystyle \phi_{1}(\tau) x_{0,1}^{* 2} + \phi_{2}(\tau) x_{0,2}^{* 2} + \phi_{3}(\tau) x_{1,1}^{2} + \phi_{4}(\tau) x_{1,2}^{2} + \phi_{5}(\tau) x_{0,1}^{*} x_{0,2}^{*} + \phi_{6}(\tau) x_{0,1}^{*} x_{1,1} +
+\\
+& \displaystyle
+\phi_{7}(\tau) x_{0,1}^{*} x_{1,2} +  \phi_{8}(\tau) x_{0,2}^{*} x_{1,1} + \phi_{9}(\tau) x_{0,2}^{*} x_{1,2} + \phi_{10}(\tau) x_{1,1}x_{1,2} + \phi_{11}(\tau) x_{0,1}^{*} + 
+ \\ & \displaystyle
+\phi_{12}(\tau) x_{0,2}^{*} + \phi_{13}(\tau) x_{1,1} + \phi_{14}(\tau) x_{1,2} +  \phi_{15}(\tau),
+\end{array}
+\end{equation*}
+then the Ricatti system of ODEs can also be obtained. For a platoon system with $N$ vehicles, it is a $2N+1$ dimensions stochastic problem. Even using the numerical method, it is hard to solve this problem. So, We want to simplify the system into a two vehicles system. For example, for the vehicle $i$, we need to show that it is reasonable to only consider the state of vehicle $i-1$ and neglect the impact of other vehicles.
+
+\subsubsection{Case: $N = 2$}
+
+Further, we consider that there are three vehicles in the platoon system, and then analyze the optimal strategy of the third vehicle. By the same way, we suppose that for the leading vehicle and the vehicle $i = 1$, we got the optional control $u_{0}^{*} (t, x), u_{1}^{*} (t, x)$ and the state function $X_{0}^{*} (t), X_{1}^{*} (t)$, then the dynamic of this system is governed by
+\begin{equation}
+    \begin{cases}
+   d X_{0}^{*}(t) = b(X_{0}^{*}(t), u_{0}^{*}(t)) \, d t + \sigma \, d \widetilde{W}_{0}(t)  \\
+   d X_{1}^{*}(t) = b(X_{1}^{*} (t), u_{1}^{*} (t)) \, d t + \sigma \, d \widetilde{W}_{1}(t) \\
+   d X_{2}(t) = b(X_{2} (t), u_{2} (t)) \, d t + \sigma \, d \widetilde{W}_{2}(t).
+   \end{cases}
+\end{equation}
+The cost function is defined as former
+\begin{equation*}
+    J_{2} (u_{2}) = \mathbb{E} \Big{[} \int_{0}^{T} \Big{(} u_{2}^{2}(t) + |p_{1}^{*}(t) - p_{2}(t) - d|^{2} + |v_{2}(t) - v_{1}^{*}(t)|^{2} \Big{)} \, d t \Big{]},
+\end{equation*}
+and the value function is abtained by taking the infimum over the admissible control set $\Pi$ to the above cost function
+\begin{equation*}
+    v(t, x_{2}, x_{1}^{*}, x_{0}^{*}) = \inf_{u_{2} \in \Pi} \mathbb{E} \Big{[} \int_{t}^{T} \Big{(} u_{2}^{2}(s) + |p_{1}^{*}(s) - p_{2}(s) - d|^{2} + |v_{2}(s) - v_{1}^{*}(s)|^{2} \Big{)} \, d s \Big{]}.
+\end{equation*}
+Then we can write down the corresponding HJB equation
+\begin{equation} \label{HJB, N=2}
+    \begin{cases}
+   - \frac{\partial w}{\partial t} - \inf_{u_{2} \in \Pi} \Big{[} x_{0,2}^{*} \frac{\partial w}{\partial x_{0, 1}^{*}} + u_{0}^{*} \frac{\partial w}{\partial x_{0, 2}^{*}} + x_{1,2}^{*} \frac{\partial w}{\partial x_{1, 1}^{*}} + u_{1}^{*} \frac{\partial w}{\partial x_{1, 2}^{*}} + x_{2,2} \frac{\partial w}{\partial x_{2, 1}} + u_{2} \frac{\partial w}{\partial x_{2, 2}} \\
+   \qquad + \frac{1}{2} \sigma_{1}^{2} \Big{(} \frac{\partial^{2} w}{\partial x_{0, 1}^{* 2}} + \frac{\partial^{2} w}{\partial x_{1, 1}^{* 2}} + \frac{\partial^{2} w}{\partial x_{2, 1}^{2}} \Big{)} + \frac{1}{2} \sigma_{2}^{2} \Big{(} \frac{\partial^{2} w}{\partial x_{0, 2}^{* 2}}  + \frac{\partial^{2} w}{\partial x_{1, 2}^{* 2}} + \frac{\partial^{2} w}{\partial x_{2, 2}^{2}} \Big{)} + u_{2}^{2} \\
+   \qquad + (x_{1, 1}^{*} - x_{2, 1} - d)^{2} + (x_{2, 2} - x_{1, 2}^{*})^{2}  \Big{]}   = 0  \\
+   w(T, x) = 0,
+   \end{cases}
+\end{equation}
+where $w(t, x) = w(t, x_{0, 1}^{*}, x_{0, 2}^{*}, x_{1, 1}^{*}, x_{1, 2}^{*}, x_{2,1}, x_{2,2})$. Assuming that we can neglect the impacts of the first vehicle on the third vehicle, which means $\frac{\partial w}{\partial x_{0, 1}^{*}} = \frac{\partial w}{\partial x_{0, 2}^{*}} = 0$, then the HJB equation (\ref{HJB, N=2}) can be simplified as
+\begin{equation} \label{HJB, N=2, simplicity}
+    \begin{cases}
+   - \frac{\partial w}{\partial t} - \inf_{u_{2} \in \Pi} \Big{[} x_{1,2}^{*} \frac{\partial w}{\partial x_{1, 1}^{*}} + u_{1}^{*} \frac{\partial w}{\partial x_{1, 2}^{*}} + x_{2,2} \frac{\partial w}{\partial x_{2, 1}} + u_{2} \frac{\partial w}{\partial x_{2, 2}} + \frac{1}{2} \sigma_{1}^{2} \Big{(} \frac{\partial^{2} w}{\partial x_{1, 1}^{* 2}} + \frac{\partial^{2} w}{\partial x_{2, 1}^{2}} \Big{)} \\
+   \qquad  + \frac{1}{2} \sigma_{2}^{2} \Big{(} \frac{\partial^{2} w}{\partial x_{1, 2}^{* 2}} + \frac{\partial^{2} w}{\partial x_{2, 2}^{2}} \Big{)} + u_{2}^{2} + (x_{1, 1}^{*} - x_{2, 1} - d)^{2} + (x_{2, 2} - x_{1, 2}^{*})^{2}  \Big{]}   = 0  \\
+   w(T, x) = 0,
+   \end{cases}
+\end{equation}
+where $w(t, x) = w(t, x_{1, 1}^{*}, x_{1, 2}^{*}, x_{2,1}, x_{2,2})$. We can observe that the HJB equation (\ref{HJB, N=2, simplicity}) has the same structure with HJB equation (\ref{HJB, N=1}).
+
+
+\section{Numerical method}
+
+Inspired by the numerical framework for generalized HJB equation in [3], we propose the similar numerical method to solve the HJB equation in our project. Suppose the real-value function $w(\cdot, \cdot)$ is defined on $[0, T] \times \bar{O}$, where $O$ is bounded open set in $\mathbb{R}^{d}$. $\Pi$ is a compact subset of Euclidean space $\mathbb{R}^{d}$, and $\sigma(\cdot, \cdot): \bar{O} \times \Pi \mapsto \mathbb{R}^{d \times d}$ is a matrix-valued function, and $a(x, u) = \sigma(x, u) \sigma^\mathsf{T} (x, u)$. Next we give the numerical framework for the following HJB equation: for $\forall (t, x) \in [0, T] \times O$
+\begin{equation} \label{HJB, numerical}
+    \frac{\partial w}{\partial t} + \inf_{u \in \Pi} \Big{[} b(x, u) D_{x} w + \frac{1}{2} \textbf{tr} (a(x, u) D_{x}^{2} w) + l(x, u) \Big{]} = 0
+\end{equation}
+and for $(t, x) \in ([0, T) \times \partial O) \cup (\{T\} \times \bar{O})$,
+\begin{equation*}
+    w(t, x) = g(x).
+\end{equation*}
+
+Let $e_{i}$ be the $i$-th unit basis of $\mathbb{R}^{d}$ for $i = 1, 2, \dots, d$. For a given positive discretized parameter $\delta, h$, define discrete spaces in state and time by
+\begin{equation}
+    O^{\delta} = \{x \in O: x = \sum_{i = 1}^{n} k_{i} \delta e_{i}, k_{i} \in \mathbb{Z} \}
+\end{equation}
+and
+\begin{equation}
+    [t, T]^{h} = [t, T] \cap \{t = k h + T: k \in \mathbb{Z} \}.
+\end{equation}
+
+Next we introduce the central finite difference(CFD) numerical scheme and the upwind finite difference(UFD) numerical scheme.
+
+\subsection{CFD scheme} 
+
+For $\forall \phi(t, x)$, the operators of the CFD scheme given by
+\begin{equation*}
+    \begin{cases}
+    \Delta_{x_{i}}^{\delta} \phi = (2 \delta)^{-1}[\phi(t, x + \delta e_{i}) - \phi(t, x -  \delta e_{i})] \\
+    \Delta_{x_{i}}^{2, \delta} \phi = \delta^{-2}[\phi(t, x + \delta e_{i}) + \phi(t, x -  \delta e_{i}) - 2 \phi(t, x)] \\
+    \Delta_{t}^{h, -}\phi = h^{-1} [\phi(t, x) - \phi(t-h, x)] \\
+    \Delta_{t}^{h, +}\phi = h^{-1} [\phi(t+h, x) - \phi(t, x)]
+    \end{cases}
+\end{equation*}
+For simplicity, we use $w^{h}(t, x)$ to substitute $w^{\delta, h}(t, x)$. Applying the CFD scheme to the HJB equation (\ref{HJB, numerical}), one can write the explicit numerical scheme as
+\begin{equation} \label{numerical 1}
+\Delta_{t}^{h, -} W^{h} + \inf_{u} \Big{[} \sum_{i = 1}^{d} b_{i} (x, u) \delta_{x_{i}}^{\delta} w^{h} + \frac{1}{2} \sum_{i = 1}^{d} a_{ii} (x, u) \Delta_{x_{i}}^{2, \delta} w^{h} + l(x, u) \Big{]} = 0.
+\end{equation}
+Plugging the operators into the formula (\ref{numerical 1}), one can give the equivalent Markov chain approximation interpretation of above CFD scheme as follows
+\begin{equation}
+    w^{h} (t - h, x) = \inf_{u} \Big{[} \sum_{y \in O^{\delta}} p^{h}(x, y, u) w^{h}(t, y) + h l(x, u) \Big{]}.
+\end{equation}
+where
+\begin{equation*}
+    p^{h}(x, x \pm \delta e_{i}, u) = \frac{h}{2 \delta^{2}} \sum_{i = 1}^{d} \Big{(} a_{ii}(x, u) \pm \delta b_{i}(x, u) \Big{)},
+\end{equation*}
+and 
+\begin{equation*}
+    p^{h}(x, x, u) = 1 - \frac{h}{\delta^{2}} \sum_{i = 1}^{d} a_{ii} (x, u).
+\end{equation*}
+For the boundary condition, we have
+\begin{equation*}
+w^{h} (T, x) = g(x).
+\end{equation*}
+
+To proceed, we need the following assumptions:
+
+(A1) $a(x, u)$ satisfies
+\begin{equation} \label{assumption1}
+    h \sum_{i = 1}^{d} a_{ii}(x, u) \leq \delta^{2}.
+\end{equation}
+(A2) Discrete parameter $\delta = \delta(h)$ is a function of $h$, such that
+\begin{equation} \label{assumption2}
+    h \sum_{i = 1}^{d} \Big{[} a_{ii} (x, u) \pm \delta b_{i}(x, u) \Big{]} \geq 0.
+\end{equation}
+
+Note that under the assumptions (\ref{assumption1}) and (\ref{assumption2}), we have
+\begin{equation*}
+    \sum_{y \in O^{\delta}} p^{h} (x, y, u) = 1, \quad p^{h}(x, y, u) \geq 0.
+\end{equation*}
+
+\subsection{UFD scheme}
+
+The finite difference operators under the upwind scheme is as following: for $\forall \phi(t, x)$,
+\begin{equation*}
+    \begin{cases}
+    \Delta_{x_{i}}^{\delta, +} \phi = \delta^{-1} [\phi(t, x + \delta e_{i}) - \phi(t, x)] \\
+    \Delta_{x_{i}}^{\delta, -} \phi = \delta^{-1} [\phi(t, x) - \phi(t, x - \delta e_{i})] \\
+    \Delta_{x_{i}}^{2, \delta} \phi = \delta^{-2}[\phi(t, x + \delta e_{i}) + \phi(t, x -  \delta e_{i}) - 2 \phi(t, x)] \\
+    \Delta_{t}^{h, -}\phi = h^{-1} [\phi(t, x) - \phi(t-h, x)] \\
+    \Delta_{t}^{h, +}\phi = h^{-1} [\phi(t+h, x) - \phi(t, x)]
+    \end{cases}
+\end{equation*}
+Applying the upwind difference scheme to the HJB equation (\ref{HJB, numerical}), onw can write the explicit numerical scheme as
+\begin{equation} \label{numerical 2}
+    \Delta_{t}^{h, -} w^{h} + \inf_{u} \Big{[} \sum_{i = 1}^{d} \Big{(} b_{i}^{+}(x, u) \Delta_{x_{i}}^{\delta, -} w^{h} - b_{i}^{-}(x, u) \Delta_{x_{i}}^{\delta, +} w^{h} \Big{)} + \frac{1}{2} \sum_{i = 1}^{d} a_{ii} (x, u) \Delta_{x_{i}}^{2, \delta} w^{h} + l(x, u) \Big{]} = 0.
+\end{equation}
+Plugging the UFD operators into the formula (\ref{numerical 2}), then one can give the equivalent Markov chain approximation interpretation of the above UFD scheme as follows
+\begin{equation}
+    w^{h} (t - h, x) = \inf_{u} \Big{[} \sum_{y \in O^{\delta}} p^{h}(x, y, u) w^{h}(t, y) + h l(x, u) \Big{]},
+\end{equation}
+where
+\begin{equation*}
+    p^{h} (x, x - \delta e_{i}, u) = \frac{h}{2 \delta^{2}} \sum_{i = 1}^{d} \Big{(} a_{ii}(x, u) - 2 \delta b_{i}^{+} (x, u) \Big{)},
+\end{equation*}
+\begin{equation*}
+    p^{h} (x, x + \delta e_{i}, u) = \frac{h}{2 \delta^{2}} \sum_{i = 1}^{d} \Big{(} a_{ii}(x, u) - 2 \delta b_{i}^{-} (x, u) \Big{)},
+\end{equation*}
+and
+\begin{equation*}
+    p^{h} (x, x, u) = 1 + \frac{h}{\delta^{2}} \sum_{i = 1}^{d} \Big{(} \delta |b_{i}(x, u) | - a_{ii} (x, u) \Big{)}.
+\end{equation*}
+
+Similarly, we need the following assumptions:
+
+(A3) $a(x, u)$ and $b(x, u)$ satisfies
+\begin{equation} \label{assumption3}
+    \sum_{i = 1}^{d} \Big{(} a_{ii}(x, u) - 2 \delta b_{i}^{+} (x, u) \Big{)} \geq 0, \quad \sum_{i = 1}^{d} \Big{(} a_{ii}(x, u) - 2 \delta b_{i}^{-} (x, u) \Big{)} \geq 0
+\end{equation}
+(A4) Discrete parameter $\delta = \delta(h)$ is a function of $h$, such that
+\begin{equation} \label{assumption4}
+    h \sum_{i = 1}^{d} \Big{[} a_{ii} (x, u) - \delta |b_{i}(x, u)| \Big{]} \leq \delta^{2}, \quad \sum_{i = 1}^{d} \Big{(} \delta |b_{i}(x, u) | - a_{ii} (x, u) \Big{)} \leq 0
+\end{equation}
+Thus under the assumptions (\ref{assumption3}) and (\ref{assumption4}), one can get that
+\begin{equation*}
+    \sum_{y \in O^{\delta}} p^{h} (x, y, u) = 1, \quad p^{h}(x, y, u) \geq 0.
+\end{equation*}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section*{References}
+%\begin{center}{\large REFERENCES}\end{center}
+\bibliographystyle{unsrt}
+%\bibliography{sample}
+\begin{description}
+\item{}
+[1] S. E. Li, Y. Zheng, K. Li, L. Wang and H. Zhang. Platoon Control of Connected Vehicles from a Networked Control Perspective: Literature Review, Component Modeling, and Controller Synthesis, IEEE Transactions on Vehicular Technology, doi: 10.1109/TVT.2017.2723881.
+\item{}
+[2] Pham, H. Continuous-time Stochastic Control and Optimization with Financial Applications, Springer-Verlag, 2009.
+\item{}
+[3] Q. Song. Convergence of markov chain approximation on generalized HJB equation and its applications, Automatica, 44(3):761–766, 2008.
+\item{}
+
+
+\end{description}
+
+
+%\bibliographystyle{plain}
+%\bibliographystyle{plainnat}
+% \bibliographystyle{apalike}
+% \bibliography{/Users/songqsh/Dropbox/R/refs}
+
+
+\end{document}

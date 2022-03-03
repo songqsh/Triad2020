@@ -1,0 +1,10 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Problem Setup}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{General \(N+1\)-players game}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Platoon control}{section.2}% 4
+\BOOKMARK [3][-]{subsubsection.2.2.1}{Case: N = 0}{subsection.2.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Case: N = 1}{subsection.2.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Case: N = 2}{subsection.2.2}% 7
+\BOOKMARK [1][-]{section.3}{Numerical method}{}% 8
+\BOOKMARK [2][-]{subsection.3.1}{CFD scheme}{section.3}% 9
+\BOOKMARK [2][-]{subsection.3.2}{UFD scheme}{section.3}% 10

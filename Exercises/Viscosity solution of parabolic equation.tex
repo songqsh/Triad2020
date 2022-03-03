@@ -1,0 +1,175 @@
+%GCE of WPI
+%by Jiamin JIAN
+
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{CJK}
+\usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{amstext}
+\usepackage{blkarray}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{listings}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\begin{document}
+
+
+\begin{center}
+\textbf{Viscosity solution of parabolic equation}
+\vspace{8pt}
+
+\end{center}
+
+\vspace{12pt}
+
+$\textbf{Question:}$
+
+Consider the parabolic equation
+\begin{equation} \label{parabolic equation}
+    \begin{cases}
+   \partial_{t} v + \partial_{x} v + \frac{1}{2} \partial_{xx} v - c v + f = 0, \quad \text{on} \,\, [0,T) \times \mathbb{T} \\
+   v(T, x) = 0, \quad \text{on} \,\,  x \in \mathbb{T}
+   \end{cases}
+\end{equation}
+Prove that if $c, f \in C([0, T) \times \mathbb{T})$, there exists a viscosity solution $v \in C([0, T) \times \mathbb{T})$. Moreover, the $v(t, x)$ has a probability representation of
+\begin{equation} \label{value function}
+    v(t,x) = \mathbb{E} \Big{[} \int_{t}^{T} \exp{\Big{\{}- \int_{t}^{s} c(r, X^{t, x}(r)) \, d r \Big{\}}} f(s, X^{t, x}(s)) \, d s \Big{]}
+\end{equation}
+where
+\begin{equation} \label{process}
+    X^{t,x}(s) = x + (s - t) + W(s) - W(t) 
+\end{equation}
+for some Brownian motion $W$.
+
+\vspace{8pt}
+
+$\textbf{Solution:}$
+
+Firstly, we show that the value function (\ref{value function}) is a viscosity supersolution of the equation
+\begin{equation*}
+    - \partial_{t} v - ( \partial_{x} v + \frac{1}{2} \partial_{xx} v - c v + f) = 0
+\end{equation*}
+on $[0, T) \times \mathbb{T}$. As $c, f \in C([0, T) \times \mathbb{T})$, we have $|u|_{0} \leq e^{|c|_{0}T}|f|_{0}T$, then $v$ is bounded on $[0, T) \times \mathbb{T}$. Let $(\bar t, \bar x) \in [0, T) \times \mathbb{T}$ and let $\varphi \in C^{2} ([0, T) \times \mathbb{T})$ be a test function such that 
+\begin{equation}
+    0 = (v_{*} - \varphi) (\bar t, \bar x) = \min_{(t, x) \in [0, T) \times \mathbb{T}} (v_{*} - \varphi) (t,x),
+\end{equation}
+where $v_{*}(t,x)$ is the lower-semicontinuous envelope of $v(t,x)$. By the definition of $v_{*}(\bar t, \bar x)$, there exists a sequence $\{(t_{m}, x_m)\}$ in $[0, T) \times \mathbb{T}$ such that
+\begin{equation*}
+    (t_m, x_m) \to (\bar t, \bar x) \,\, \text{and} \, \, v(t_m, x_{m}) \to v_{*} (\bar t, \bar x)
+\end{equation*}
+when $m$ goes to infinity. By the continuity of $\varphi$, when $m \to \infty$, we have
+\begin{equation*}
+    \eta_{m} = v(t_m, x_m) - \varphi(t_m, x_m) \to 0.
+\end{equation*}
+We denote by $X_{s}^{t_m, x_m}$ the associated process with the initial data $X_{t_m} = x_{m}$. Let $\theta_{m}$ be the stopping time given by
+\begin{equation}
+    \theta_{m} = \inf \{s \geq t_{m} : (s - t_{m}, X_{s}^{t_m, x_m} - x_m) \notin [0, h_m) \times \alpha B \}
+\end{equation}
+where $\alpha > 0$ is some given constant, $B$
+ denotes the unit ball of $\mathbb{T}$, and
+ \begin{equation*}
+     h_{m} = \sqrt{\eta_{m}}\, \mathbb{I}_{\{\eta_{m} \neq 0\}} + m^{-1} \mathbb{I}_{\{\eta_{m} = 0\}}.
+ \end{equation*}
+Then we have $\theta_{m} \to \bar t$ as $m \to \infty$ since $h_m$ converges to $0$. Applying the dynamic programming principle for $v(t_m, x_m)$ to $\theta_m$ and get
+\begin{equation*}
+    v(t_m, x_m) \geq \mathbb{E} \Big{[} \int_{t_m}^{\theta_m} \beta(t_m, s) f(s, X_{s}^{t_m, x_m}) \, d s + \beta(t_m, \theta_m) v(\theta_m, X_{\theta_m}^{t_m, x_m}) \Big{]},
+\end{equation*}
+where
+\begin{equation*}
+    \beta(t_m, s) = \exp \Big{\{} - \int_{t_m}^{s} c(r, X^{t_m, x_m}(r)) \, d r \Big{\}}.
+\end{equation*}
+Since $v \geq v_{*} \geq \varphi$, then
+\begin{equation*}
+    \varphi(t_m, x_m) + \eta_m \geq \mathbb{E} \Big{[} \int_{t_m}^{\theta_m} \beta(t_m, s) f(s, X_{s}^{t_m, x_m}) \, d s + \beta(t_m, \theta_m) \varphi (\theta_m, X_{\theta_m}^{t_m, x_m}) \Big{]}.
+\end{equation*}
+Applying the It\^{o}'s formula to the smooth test function $\varphi$, and since $\beta(t_m, s) D \varphi(s, X_{s}^{t_m, x_m})$ is bounded on the interval $[t_m, \theta_m]$, then we have
+\begin{equation*}
+    \frac{\eta_m}{h_m} + \mathbb{E} \Big{[} \frac{1}{h_m} \int_{t_m}^{\theta_m} \beta(t_m, s) \big{(} - \frac{\partial \varphi}{\partial t} - L \varphi - f \big{)} (s, X_{s}^{t_m, x_m}) \, d s  \Big{]} \geq 0,
+\end{equation*}
+where $L \varphi = \frac{\partial \varphi}{\partial x} + \frac{1}{2} \frac{\partial^{2} \varphi}{\partial x^{2}} - c \varphi$. By a.s. continuity of the trajectory $X_{s}^{t_m, x_m}$, it follows that for $m$ sufficient large, $\theta_{m}(\omega) = t_{m} + h_{m}$ a.s. Thus by mean value theorem, the random variable inside the expectation converges to
+\begin{equation*}
+    - \frac{\partial \varphi}{\partial t} (\bar t, \bar x) - L \varphi (\bar t, \bar x) - f(\bar t, \bar x)
+\end{equation*}
+when $m \to \infty$. Moreover, this random variable is bounded by a constant independent of $m$. We then obtain
+\begin{equation}
+    - \frac{\partial \varphi}{\partial t} (\bar t, \bar x) - \frac{\partial \varphi}{\partial x} (\bar t, \bar x) - \frac{1}{2} \frac{\partial^{2} \varphi}{\partial x^{2}} (\bar t, \bar x) + c \varphi (\bar t, \bar x) - f(\bar t, \bar x) \geq 0
+\end{equation}
+when $m$ goes to infinity by dominate convergence theorem.
+
+\vspace{4pt}
+
+Next we show that $v(t,x)$ is a viscosity subsolution of the equation
+\begin{equation*}
+    - \partial_{t} v - ( \partial_{x} v + \frac{1}{2} \partial_{xx} v - c v + f) = 0
+\end{equation*}
+on $[0, T) \times \mathbb{T}$. Let $(\bar t, \bar x) \in [0, T) \times \mathbb{T}$ and $\varphi \in C^{2}([0, T) \times \mathbb{T})$ be such that
+\begin{equation} \label{usc}
+    0 = (v^{*} - \varphi)(\bar t, \bar x) > (v^{*} - \varphi)(t, x)
+\end{equation}
+for $(t,x) \in [0, T) \times \mathbb{T}$. In order to prove the required result, we assume that 
+\begin{equation*}
+    h(\bar t, \bar x) = \partial_{t} \varphi (\bar t, \bar x) + (\partial_{x} \varphi + \frac{1}{2} \partial_{xx} \varphi -  c \varphi + f)(\bar t, \bar x) < 0.
+\end{equation*}
+We denote $H(t, x, r, p, M) = p(t,x) + \frac{1}{2} M(t,x) + f(t,x) - c(t, x) r (t,x)$, then we can rewrite the above assumption as
+\begin{equation*}
+    h(\bar t, \bar x) = \partial_{t} \varphi (\bar t, \bar x) + H(\bar t, \bar x, \varphi(\bar t, \bar x), \partial_{x} \varphi(\bar t, \bar x), \partial_{xx} \varphi(\bar t, \bar x)) < 0.
+\end{equation*}
+Since $H$ is continuous, then there exists an open neighborhood $\mathcal{N}_{r} = (\bar t - r, \bar t + r) \times r B(\bar x)$ of $(\bar t, \bar x)$, for some $r > 0$ such that
+\begin{equation*}
+    h = \partial_{t} \varphi + H(t, x, \varphi, \partial_{x} \varphi, \partial_{xx} \varphi) < 0  
+\end{equation*}
+on $\mathcal{N}_{r}$. By the definition of $\mathcal{N}_{r}$ and (\ref{usc}), for a constant $\eta > 0$, we have
+\begin{equation} \label{inequality: usc}
+    - 2 \eta e^{r |c|_{0}} := \max_{\partial \mathcal{N}_{\eta}} (v^{*} - \varphi) < 0.
+\end{equation}
+Let $\{(t_n, x_n)\}$ be a sequence in $\mathcal{N}_{r}$ such that
+\begin{equation*}
+    (t_n, x_n) \to (\bar t, \bar x) \,\, \text{and} \, \, v(t_n, x_n) \to v^{*}(\bar t, \bar x).
+\end{equation*}
+Since $(v - \varphi)(t_n, x_n) \to 0$, we can assume that the sequence $(t_n, x_n)$ also satisfies
+\begin{equation*}
+    |(v - \varphi)(t_n, x_n)| \leq \eta 
+\end{equation*}
+for all $n \geq 1$. We define the stopping time
+\begin{equation*}
+    \theta_{n} = \inf \{s > t_n : (s, X_{s}^{t_n, x_n}) \notin \mathcal{N}_{r} \}
+\end{equation*}
+and we observe that $(\theta_{n}, X_{\theta_{n}}^{t_n, x_n}) \in \partial \mathcal{N}_{r}$ by the pathwise continuity of the process. Then, with $\beta_{s} = \beta(t_n, s)$, for the constant $\eta$ and by formula (\ref{inequality: usc}), we have
+\begin{equation} \label{inequality 1}
+    \beta_{\theta_{n}} \varphi(\theta_{n}, X_{\theta_n}^{t_n, x_n}) \geq 2 \eta + \beta_{\theta_n} v^{*} (\theta_{n}, X_{\theta_n}^{t_n, x_n}).
+\end{equation}
+Since $\beta_{t_n} = 1$ and $|(v - \varphi)(t_n, x_n)| \leq \eta$, by the It\^{o}'s formula to the smooth test function $\varphi$, we have
+\begin{align*}
+    v(t_n, x_n) & \geq - \eta + \varphi(t_n, x_n) \\
+    & = - \eta + \mathbb{E} \Big{[} \beta_{\theta_n} \varphi(\theta_n, X_{\theta_n}^{t_n, x_n}) - \int_{t_n}^{\theta_n} \beta_{s} (\partial_{t} + \mathcal{L}) \varphi(s, X_{s}^{t_n, x_n}) \, d s \Big{]} \\
+    & \geq - \eta + \mathbb{E} \Big{[} \beta_{\theta_n} \varphi(\theta_n, X_{\theta_n}^{t_n, x_n}) + \int_{t_n}^{\theta_n} \beta_{s} (f - h) (s, X_{s}^{t_n, x_n}) \, d s \Big{]} \\
+    & \geq - \eta + \mathbb{E} \Big{[} \beta_{\theta_n} \varphi(\theta_n, X_{\theta_n}^{t_n, x_n}) + \int_{t_n}^{\theta_n} \beta_{s} f(s, X_{s}^{t_n, x_n}) \, d s \Big{]} .
+\end{align*}
+By the (\ref{inequality 1}), we know that
+\begin{equation*}
+    v(t_n, x_n) \geq \eta + \mathbb{E} \Big{[} \beta_{\theta_n} v^{*} (\theta_n, X_{\theta_n}^{t_n, x_n}) + \int_{t_n}^{\theta_n} \beta_{s} f(s, X_{s}^{t_n, x_n}) \, d s \Big{]},
+\end{equation*}
+which is in contradiction with the dynamic programming principle as $\eta > 0$.
+
+Thus by the conclusion we got in the above, we know that the value function (\ref{value function}) is a viscosity solution of the equation
+\begin{equation*}
+    \partial_{t} v + \partial_{x} v + \frac{1}{2} \partial_{xx} v - c v + f = 0
+\end{equation*}
+on $[0, T) \times \mathbb{T}$.
+
+
+
+
+
+
+
+\end{document}

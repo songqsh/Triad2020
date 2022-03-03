@@ -1,0 +1,122 @@
+%Stochastic control problem 1
+%by Jiamin JIAN
+
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{CJK}
+\usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{amstext}
+\usepackage{blkarray}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{listings}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\begin{document}
+
+
+\begin{center}
+\textbf{Stochastic Control Exercises}
+\vspace{8pt}
+
+Jiamin JIAN
+\end{center}
+
+\vspace{12pt}
+
+$\textbf{Exercise 1:}$
+
+Let $(\Omega, \mathcal{F}, \mathbb{P}, \{ \mathcal{F}_{t}\}_{t \geq 0})$ be a filtered probability space, where $W_{t}$ is a Brownian motion. The state process $X_{t}$ is defined as follows:
+\begin{equation*}
+    X_{t} = \int_{0}^{t} a(s) \, d s + W_{t},
+\end{equation*}
+and we define the minimum cost as
+\begin{equation*}
+    V = \inf_{a(\centerdot) \in \mathcal{A}} \mathbb{E} \Big{[} \int_{0}^{t} a^{2} (s) \, d s + X_{T}^{2} \Big{]},
+\end{equation*}
+where $\mathcal{A}$ is the collection of all $\mathcal{F}_{t}$ progressively measurable process. Find the value V. 
+
+
+\vspace{8pt}
+
+$\textbf{Solution:}$
+
+Firstly we derive the HJB equation of this control problem. Since
+\begin{equation*}
+    d X_{t} = a(t) \, d t + d W_{t},
+\end{equation*}
+then for the state process we have $b(X_{t}, a(t)) = a(t)$ and $\sigma(X_{t}, a(t)) = 1$. Then we know that the HJB equation is
+\begin{equation*}
+    \frac{\partial v}{\partial t} + \inf_{a \in A} [L^{a}v + a^{2}] = 0,
+\end{equation*}
+where $L^{a}v = a  \frac{\partial v}{\partial x} + \frac{1}{2} \frac{\partial^{2} v}{\partial x^{2}}$, and the domain is $[0, T] \times \mathbb{R}$. Since 
+\begin{equation*}
+    L^{a}v + a^{2} = a  \frac{\partial v}{\partial x} + \frac{1}{2} \frac{\partial^{2} v}{\partial x^{2}} + a^{2},
+\end{equation*}
+then when $a = - \frac{1}{2} \frac{\partial v}{\partial x}$, the term $L^{a} v + a^{2}$ can get the minimum value. So we get the HJB equation under the domain $[0, T] \times \mathbb{R}$:
+\begin{equation*}
+\left\{
+             \begin{array}{l}
+             \frac{\partial v}{\partial t} + \frac{1}{2} \frac{\partial^{2} v}{\partial x^{2}} - \frac{1}{4} \big{(} \frac{\partial v}{\partial x}\big{)}^{2} = 0 \\
+             v(T, x) = x^{2}
+             \end{array}
+\right.
+\end{equation*}
+And we have $V = v(0, 0)$. 
+
+Next we need to solve HJB equation. We denote $\tau = T -t$ and $v(t, x) = u(\tau, x) = u(T - t, x)$, then we have
+\begin{equation*}
+\left\{
+             \begin{array}{l}
+             - \frac{\partial u}{\partial \tau} + \frac{1}{2} \frac{\partial^{2} u}{\partial x^{2}} - \frac{1}{4} \big{(} \frac{\partial u}{\partial x}\big{)}^{2} = 0 \\
+             u(\tau, x) = x^{2}
+             \end{array}
+\right.
+\end{equation*}
+and $V = u(T, 0)$. We suppose
+\begin{equation*}
+    u(\tau, x) = \phi_{1} (\tau) x^{2} +  \phi_{2} (\tau) x + \phi_{3} (\tau),
+\end{equation*}
+then we have $\phi_{1} (0) = 1, \phi_{2} (0) = 0, \phi_{3} (0) = 0$ and since 
+\begin{equation*}
+\left\{
+    \begin{array}{l}
+        \frac{\partial u}{\partial \tau} = \frac{d \phi_{1}}{d \tau} x^{2} + \frac{d \phi_{2}}{d \tau} x + \frac{d \phi_{3}}{d \tau} \\
+        \frac{\partial u}{\partial x} = 2 \phi_{1} x + \phi_{2} \\
+        \frac{\partial^{2} u}{\partial x^{2}} = 2 \phi_{1}
+    \end{array}
+\right.
+\end{equation*}
+then we can get the system of ODE as follows
+\begin{equation*}
+\left\{
+    \begin{array}{l}
+        \frac{d \phi_{1}}{d \tau} + (\phi_{1})^{2} = 0 \\
+        \frac{d \phi_{2}}{d \tau} + \phi_{1} \phi_{2} = 0 \\
+        \frac{d \phi_{3}}{d \tau} - \phi_{1} + \frac{1}{4} (\phi_{2})^{2} = 0
+    \end{array}
+\right.
+\end{equation*}
+with $\phi_{1} (0) = 1, \phi_{2} (0) = 0, \phi_{3} (0) = 0$. By calculation, we have $\phi_{1} (\tau) = (\tau + 1)^{-1}, \phi_{2} (\tau) = 0$ and $\phi_{3} (\tau) = \ln (\tau + 1)$, then
+\begin{equation*}
+    u(\tau, x) = \frac{1}{\tau + 1} x^{2} + \ln (\tau + 1),
+\end{equation*}
+so we can get $u(T, 0) = \ln (T + 1)$. Since $v(t, x) = u(T-t, x)$, then we have
+\begin{equation*}
+    v(t, x) = \frac{1}{T-t+1} x^{2} + \ln (T-t+1), \, (t, x) \in [0, T] \times \mathbb{R}.
+\end{equation*}
+So $v(t,x) \in C^{1,2} ([0, T] \times \mathbb{R})$. Since $\frac{1}{T-t+1} \leq 1$ and $\ln (T-t+1) \leq \ln(T+1)$ for all $t \in [0, T]$, then we know there exists a constant $C$ such that $v(t, x) \leq C(1+|x|^{2})$. And $v(t,x)$ is the solution of HJB equation with $a(t, x) = \frac{-x}{T-t+1}$, by the verification theorem, we know that $v(t,x)$ is the solution of the control problem. Thus we have $V = \ln (T + 1)$, which means 
+\begin{equation*}
+ \inf_{a(\centerdot) \in \mathcal{A}} \mathbb{E} \Big{[} \int_{0}^{t} a^{2} (s) \, d s + X_{T}^{2} \Big{]} = \ln (T + 1).
+\end{equation*}
+
+
+\end{document}

@@ -1,0 +1,201 @@
+%GCE of WPI
+%by Jiamin JIAN
+
+\documentclass[12pt,a4paper]{ctexart}
+\usepackage{CJK}
+\usepackage{lipsum}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{amssymb}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{amstext}
+\usepackage{blkarray}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{listings}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\begin{document}
+
+
+\begin{center}
+\textbf{Comparison principle}
+\end{center}
+
+\vspace{12pt}
+
+$\textbf{1. HJB equation:}$
+
+Consider the HJB equation in the form
+\begin{equation} \label{HJB}
+    - \frac{\partial w}{\partial t} + \beta w - H(t, x, D_{x} w, D_{x}^{2} w) = 0 \qquad \text{on} \,\, [0, T) \times \mathbb{R}^{n}
+\end{equation}
+with a Hamitonian
+\begin{equation} \label{Hamitonian}
+    H(t,x,p,M) = \sup_{a \in A} \big{[} b(x,a) \cdot p + \frac{1}{2} tr(\sigma(x,a) \sigma^{'}(x,a) M) + f(t,x,a)]
+\end{equation}
+for $(t,x,p,M) \in [0, T] \times \mathbb{R}^{n} \times \mathbb{R}^{n} \times S_{n}$, where $A$ is a subset of $\mathbb{R}^{m}$, $S_n$ is $n\times n$ symmetric matrix and $\beta(t,x)$ is a function which has lower bound.
+
+\vspace{8pt}
+
+$\textbf{2. Assumptions:}$
+
+\begin{itemize}
+    \item $b(x,a), \sigma(x,a)$ admit the linear growth condition and satisfy a uniform Lipschitz condition in $x$,
+    \item $\beta(t,x)$ is lower bounded, 
+    \item $f$ is uniformly continuous in $(t, x)$, uniformly in $a \in A$.
+\end{itemize}
+
+
+\vspace{8pt}
+
+$\textbf{3. Comparison principle:}$
+
+Let $U$ (resp. $V$) be a u.s.c. viscosity subsolution (resp. l.s.c. viscosity supersolution) with polynomial growth condition to (\ref{HJB}), such that $U(T, \cdot) \leq V(T, \cdot)$ on $\mathbb{R}^{n}$, then $U \leq V$ on $[0, T) \times \mathbb{R}^{n}$.
+
+\vspace{8pt}
+
+\text{Proof: Step 1.} Let $\Tilde{U}(t,x) = e^{\lambda t} U(t,x)$ and $\Tilde{V}(t,x) = e^{\lambda t} V(t,x)$. Then a straightforward calculation shows that $\Tilde{U}$ (resp. $\Tilde{U}$) subsolution (resp. supersolution) to
+\begin{equation*}
+     - \frac{\partial w}{\partial t} + (\beta(t,x) + \lambda) w - \Tilde{H}(t, x, D_{x} w, D_{x}^{2} w) = 0 \qquad \text{on} \,\, [0, T) \times \mathbb{R}^{n}
+\end{equation*}
+where $\Tilde{H}$ has the same form as $H$ with $f$ replaced by $\Tilde{f}(t,x) = e^{\lambda t} f(t,x)$. Therefore, as $\beta(t,x)$ is lower bounded, we can take a $\lambda$ so that $\beta(t,x) + \lambda > 0$, and possibly replacing $(U, V)$ by $(\Tilde{U}, \Tilde{V})$, we can assume w.l.o.g. that $\beta(t,x) > 0$ for any $(t,x) \in [0, T) \times \mathbb{R}^{n}$.
+
+Step 2, penalization and perturbation of supersolution. From the polynomial growth condition on $U, V$, we may choose an integer $p$ greater than $1$ such that
+\begin{equation*}
+    \sup_{[0, T] \times \mathbb{R}^{n}} \frac{|U(t,x) + V(t,x)|}{1 + |x|^{p}} < \infty
+\end{equation*}
+and we consider the function $\phi(t,x) = e^{-\lambda t} (1 + |x|^{2p}) = e^{-\lambda t} \psi(x)$. From linear growth condition on $b, \sigma$, there exists positive constant $c$ such that
+$$\begin{array}
+{ll}
+& - \frac{\partial \phi}{\partial t} + \beta \phi - \sup_{a \in A} \big{[} b \cdot D_{x} \phi + \frac{1}{2} tr(\sigma \sigma^{'} D_{x}^{2} \phi) + f]
+\\ = &
+ \lambda e^{-\lambda t} \psi(x) + \beta e^{-\lambda t} \psi(x) - \sup_{a \in A} \big{[} b \cdot e^{-\lambda t} D_{x} \psi(x) + \frac{1}{2} tr(\sigma \sigma^{'} e^{-\lambda t} D_{x}^{2}\psi(x)) + f]
+\\ = & 
+e^{-\lambda t} \Big{\{} (\beta + \lambda) \psi(x) - \sup_{a \in A} \big{[} b \cdot  D_{x} \psi(x) + \frac{1}{2} tr(\sigma \sigma^{'} D_{x}^{2}\psi(x)) + e^{\lambda t} f] \Big{\}} 
+\\ \geq &
+e^{-\lambda t} (\beta + \lambda - c ) \psi \geq 0
+\end{array}
+$$
+by taking $\lambda \geq c - \beta$. This implies that for all $\epsilon > 0$, the function
+\begin{equation*}
+    V_{\epsilon} = V + \epsilon \phi
+\end{equation*}
+is a supersolution to (\ref{HJB}). Futhermore, from the growth condition on $U, V, \phi$, we have for all $\epsilon > 0$,
+\begin{equation*}
+    \lim_{|x| \to \infty} \sup_{[0, T]} (U - V_{\epsilon}) (t,x) = - \infty.
+\end{equation*}
+
+Step 3. From the step 1 and step 2, we may assume w.l.o.g. that $\beta(t,x) > 0$ for all $(t,x) \in [0, T) \times \mathbb{R}^{n}$ and the supreme of the u.s.c. function $U - V$ on $[0, T] \times \mathbb{R}^{n}$ is attained on $[0, T] \times \mathcal{O}$ for some open bounded set $\mathcal{O}$ of $\mathbb{R}^{n}$. 
+
+To prove $U \leq V$ on $[0, T] \times \mathbb{R}^{n}$, we argue by contradiction, which yields
+\begin{equation} \label{contradiction}
+    M = \sup_{[0, T] \times \mathbb{R}^{n}} (U - V) = \sup_{[0, T] \times \mathcal{O}} (U - V) > 0.
+\end{equation}
+We consider a bounded sequence $(t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon)_{\epsilon}$ that maximizes for all $\epsilon > 0$, the function $\Phi_{\epsilon}$ on $[0, T]^{2} \times \mathbb{R}^{n} \times \mathbb{R}^{n}$ with
+\begin{equation}
+    \Phi_{\epsilon} (t,s,x,y) = U(t,x) - V(s,y) - \phi_{\epsilon}(t,s,x,y)
+\end{equation}
+where
+\begin{equation}
+    \phi_{\epsilon} (t,s,x,y) = \frac{1}{2 \epsilon} [|t-s|^{2} + |x-y|^{2}].
+\end{equation}
+Next we show that 
+\begin{equation} \label{limits}
+    M_{\epsilon} \to M \,\, \text{and} \,\, \phi_{\epsilon}(t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) \to 0
+\end{equation}
+as $\epsilon \to 0$. For any $(t,x) \in [0,T] \times \mathcal{O}$, we have
+\begin{align*}
+    M_{\epsilon} & \geq \sup_{s, y} (U(t,x) - V(s,y) - \phi_{\epsilon}(t,s,x,y)) \\
+    & \geq U(t,x) - V(t,x) - \phi_{\epsilon}(t,t,x,x) \\
+    & = U(t,x) - V(t,x),
+\end{align*}
+then 
+\begin{equation*}
+    \sup_{t,x} M_{\epsilon} = M_{\epsilon} \geq \sup_{t,x} (U(t,x) - V(t,x)) = M.
+\end{equation*}
+Thus for all $\epsilon > 0$,
+\begin{align*}
+    M \leq M_{\epsilon} & = U(t_\epsilon, x_\epsilon) - V(s_\epsilon, y_\epsilon) - \phi_{\epsilon}(t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon)  \\
+    & \leq U(t_\epsilon, x_\epsilon) - V(s_\epsilon, y_\epsilon).
+\end{align*}
+The bounded sequence $(t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon)_{\epsilon}$ converges, up to a subsequence, to some $(\bar t, \bar s, \bar x, \bar y) \in [0, T]^{2} \times \bar{\mathcal{O}}^{2}$. Moreover, since the sequence $(U(t_\epsilon, x_\epsilon) - V(s_\epsilon, y_\epsilon))_\epsilon$ is bounded and the sequence $(\phi_{\epsilon}(t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon))_\epsilon$ is also bounded, which implies $\bar t = \bar s$ and $\bar x = \bar y$. By sending $\epsilon$ to $0$, we have
+\begin{equation*}
+    M \leq U(\bar t, \bar x) - V(\bar t, \bar x) \leq M
+\end{equation*}
+and so $ M = (U - V)(\bar t, \bar x)$ with $(\bar t, \bar x) \in [0, T] \times \mathcal{O}$. By sending $\epsilon$ to 0, we can get (\ref{limits}). 
+
+With $\phi (t,s,x,y) = \frac{1}{2 \epsilon} [|t-s|^{2} + |x-y|^{2}]$, we have
+\begin{equation*}
+    \frac{\partial \phi}{\partial t} (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) = - \frac{\partial \phi}{\partial s} (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) = \frac{t_\epsilon - s_\epsilon}{\epsilon},
+\end{equation*}
+\begin{equation*}
+    D_{x} \phi (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) = - D_{y} \phi (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) = \frac{x_\epsilon - y_\epsilon}{\epsilon},
+\end{equation*}
+\begin{equation*}
+    D_{xy}^{2} \phi (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) = \frac{1}{\epsilon} 
+  \left(   \begin{array}{cc}
+    I_{n} &  - I_{n} \\
+    -I_{n} & I_{n}
+\end{array}   \right)
+\end{equation*}
+and
+\begin{equation*}
+    \big{(} D_{xy}^{2} \phi (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon) \big{)}^{2} = \frac{2}{\epsilon} D_{xy}^{2} \phi (t_\epsilon, s_\epsilon, x_\epsilon, y_\epsilon).
+\end{equation*}
+Furthermore, by choosing $\eta = \epsilon$ in the Ishii's lemma, then we have 
+\begin{equation*}
+  \left(   \begin{array}{cc}
+    M &  0 \\
+    0 & - N
+\end{array}   \right) \leq  \frac{3}{\epsilon}
+\left(   \begin{array}{cc}
+    I_{n} &  - I_{n} \\
+    -I_{n} & I_{n}
+\end{array}   \right).
+\end{equation*}
+This implies that for any $n \times d$ matrices $C, D$, 
+\begin{equation} \label{trace}
+    tr(C C^{'} M - D D^{'} M) \leq \frac{3}{\epsilon} |C - D|^{2}.
+\end{equation}
+By the Ishii's lemma, we have
+\begin{equation*}
+    \Big{(} \frac{1}{\epsilon}(t_\epsilon - s_\epsilon), \frac{1}{\epsilon} (x_{\epsilon} - y_{\epsilon}), M \Big{)} \in \bar{\mathcal{P}}^{2, +} U(t_\epsilon, x_\epsilon)
+\end{equation*}
+\begin{equation*}
+    \Big{(} \frac{1}{\epsilon}(t_\epsilon - s_\epsilon), \frac{1}{\epsilon} (x_{\epsilon} - y_{\epsilon}), N \Big{)} \in \bar{\mathcal{P}}^{2,-} V(s_\epsilon, y_\epsilon)
+\end{equation*}
+From the viscosity subsolution and supersolution characterization of $U$ and $V$ in terms of superjets and subjets, we then have
+\begin{equation} \label{sub}
+    - \frac{1}{\epsilon} (t_\epsilon - s_\epsilon) + \beta U(t_\epsilon, x_\epsilon) - H \Big{(} t_\epsilon, x_\epsilon, \frac{1}{\epsilon} (x_{\epsilon} - y_{\epsilon}), M \Big{)} \leq 0
+\end{equation}
+\begin{equation} \label{sup}
+    - \frac{1}{\epsilon} (t_\epsilon - s_\epsilon) + \beta V(s_\epsilon, y_\epsilon) - H \Big{(} s_\epsilon, y_\epsilon, \frac{1}{\epsilon} (x_{\epsilon} - y_{\epsilon}), N \Big{)} \geq 0
+\end{equation}
+By substracting of (\ref{sub}) and (\ref{sup}), applying the (\ref{trace}) to $C = \sigma(x_\epsilon, a)$ and $D = \sigma(y_\epsilon, a)$, we have
+\begin{align*}
+    \beta [U(t_\epsilon, x_\epsilon) - V(s_\epsilon, y_\epsilon)] & \leq H \Big{(} t_\epsilon, x_\epsilon, \frac{1}{\epsilon} (x_{\epsilon} - y_{\epsilon}), M \Big{)} - H \Big{(} s_\epsilon, y_\epsilon, \frac{1}{\epsilon} (x_{\epsilon} - y_{\epsilon}), N \Big{)}  \\
+    & \leq \mu \Big{(} |t_\epsilon - s_\epsilon| +|x_\epsilon - y_\epsilon| + \frac{2}{\epsilon} |x_{\epsilon} - y_{\epsilon}|^{2} \Big{)},
+\end{align*}
+where $\mu(z) \to 0$ as $z \to 0$. By sending $\epsilon$ to $0$, we have $\beta M \leq 0$. As $\beta(t,x) >0$ for any $(t,x) \in [0, T] \times \mathcal{O}$, we can get $M < 0$, which contradicts to (\ref{contradiction}). 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
