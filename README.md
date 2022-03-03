@@ -1,4 +1,6 @@
-# Research
+# Triad2020 - Research
+## Participants
+Jiamin Jian, Yanhua Li, Hamidreza Modares, Qingshuo Song, Seyed Zekavat,
 
 ## (1) Platoon control
 
